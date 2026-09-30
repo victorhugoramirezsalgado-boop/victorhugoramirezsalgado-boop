@@ -1,0 +1,37 @@
+name: Issue Terminal Runner
+
+on:
+  issues:
+    types: [opened, edited, reopened, labeled]
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  issue-terminal-runner:
+    name: Ejecutar terminal del issue/programación
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Mostrar información del issue
+        if: github.event_name == 'issues'
+        shell: bash
+        run: |
+          echo "Issue: #${{ github.event.issue.number }}"
+          echo "Título: ${{ github.event.issue.title }}"
+          echo "Repositorio: ${{ github.repository }}"
+          echo "---"
+          echo "Cuerpo del issue:"
+          printf '%s\n' "${{ github.event.issue.body }}"
+
+      - name: Ejecutar script de sistema
+        shell: bash
+        run: |
+          chmod +x .github/scripts/fix-system.sh
+          ./.github/scripts/fix-system.sh
